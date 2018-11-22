@@ -1,7 +1,13 @@
 node {
     checkout scm
-    def customImage = docker.build("my-image:${env.BUILD_ID}")
-    customImage.push()
+     docker.withRegistry('http://localhost:5000')
+     {
 
-    customImage.push('latest')
+        def customImage = docker.build("my-image:${env.BUILD_ID}")
+        customImage.push()
+
+        customImage.push('latest')
+
+     }
+
 }
