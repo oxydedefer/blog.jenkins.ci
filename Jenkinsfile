@@ -1,44 +1,64 @@
-
 pipeline {
-    agent {dockerfile true}
-     environment {
-        PACKAGE_NAME = "packageseb"
-        TAG = sh 'git describe --abbrev=0 --tags'
+    agent any
+    environment {
+        PACKAGE_NAME = "blog-jenkins-ci"
+
     }
-    stages{
-        stage("Build"){
-            steps{
-                echo "build always"
+    stages {
+        stage("Build & test") {
+            agent {
+                dockerfile true
             }
-        }
-        stage("Test"){
-            steps{
-                echo "make tests always"
+            stages {
+                stage("Build") {
+
+                    steps {
+                        echo "build always"
+                    }
+                }
+                stage("Test") {
+                    steps {
+                        echo "make tests always"
+                    }
+                }
+
             }
+
         }
-        stage("Deploy on Alpha registry"){
-         when { tag "*-alpha" }
+
+        stage("Deploy on Alpha registry") {
+            when {
+                tag "*-alpha"
+            }
             steps {
                 echo 'Deploying only because this commit is tagged in ALPHA'
 
             }
 
         }
-        stage("Deploy on Beta registry"){
-         when { tag "*-beta" }
+        stage("Deploy on Beta registry") {
+            when {
+                tag "*-beta"
+            }
             steps {
-                 docker.withRegistry('http://localhost:5000')
-                 {
-                    def customImage = docker.build("env.PACKAGE_NAME:${env.TAG}")
-                    customImage.push()
+                script {
+                    docker.withRegistry('http://localhost:5000') {
 
-                    customImage.push('latest')
+                        string TAG = sh(returnStdout: true, script: "git describe --abbrev=0 --tags").trim()
+                        def customImage = docker.build("${env.PACKAGE_NAME}:${TAG}")
+                        customImage.push()
 
-                 }
+                        customImage.push('latest')
+
+                    }
+                }
+
             }
         }
-        stage("Deploy on production regitry"){
-         when { tag "*-release" }
+        stage("Deploy on production regitry") {
+            when {
+                tag "*-release"
+            }
             steps {
                 echo 'Deploying only because this commit is tagged in release'
 
@@ -50,14 +70,14 @@ pipeline {
 
     }
     post {
-      unstable {
-         slackSend color: "warning", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was unstable"
-      }
-      success {
-        slackSend color: "good", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was successful"
-      }
-      failure {
-        slackSend color: "danger", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was failed"
-      }
+        unstable {
+            slackSend color: "warning", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was unstable"
+        }
+        success {
+            slackSend color: "good", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was successful"
+        }
+        failure {
+            slackSend color: "danger", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was failed"
+        }
     }
 }
