@@ -9,7 +9,7 @@ pipeline {
         }
         stage("Test"){
             steps{
-                ech "make tests always"
+                echo "make tests always"
             }
         }
         stage("Deploy on Alpha registry"){
