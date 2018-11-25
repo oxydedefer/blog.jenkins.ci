@@ -27,15 +27,15 @@ pipeline {
         stage("Deploy on Beta registry"){
          when { tag "*-beta" }
             steps {
-             docker.withRegistry('http://localhost:5000')
-             {
-                def customImage = docker.build("env.PACKAGE_NAME:${env.TAG}")
-                customImage.push()
+                 docker.withRegistry('http://localhost:5000')
+                 {
+                    def customImage = docker.build("env.PACKAGE_NAME:${env.TAG}")
+                    customImage.push()
 
-                customImage.push('latest')
+                    customImage.push('latest')
 
-             }
-
+                 }
+            }
         }
         stage("Deploy on production regitry"){
          when { tag "*-release" }
