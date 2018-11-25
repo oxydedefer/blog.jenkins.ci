@@ -21,7 +21,7 @@ pipeline {
 
         }
         stage("Deploy on Beta registry"){
-         when { tag "*-alpha" }
+         when { tag "*-beta" }
             steps {
                 echo 'Deploying only because this commit is tagged in Beta'
 
