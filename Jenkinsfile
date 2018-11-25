@@ -1,6 +1,10 @@
 
 pipeline {
     agent {dockerfile true}
+     environment {
+        PACKAGE_NAME = "packageseb"
+        TAG = sh 'git describe --abbrev=0 --tags'
+    }
     stages{
         stage("Build"){
             steps{
@@ -23,9 +27,14 @@ pipeline {
         stage("Deploy on Beta registry"){
          when { tag "*-beta" }
             steps {
-                echo 'Deploying only because this commit is tagged in Beta'
+             docker.withRegistry('http://localhost:5000')
+             {
+                def customImage = docker.build("env.PACKAGE_NAME:${env.TAG}")
+                customImage.push()
 
-            }
+                customImage.push('latest')
+
+             }
 
         }
         stage("Deploy on production regitry"){
