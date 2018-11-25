@@ -31,7 +31,17 @@ pipeline {
                 tag "*-alpha"
             }
             steps {
-                echo 'Deploying only because this commit is tagged in ALPHA'
+                script {
+                    docker.withRegistry('http://localhost:5000') {
+
+                        string TAG = sh(returnStdout: true, script: "git describe --abbrev=0 --tags").trim()
+                        def customImage = docker.build("${env.PACKAGE_NAME}:${TAG}")
+                        customImage.push()
+
+                        customImage.push('latest')
+
+                    }
+                }
 
             }
 
