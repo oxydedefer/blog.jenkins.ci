@@ -16,7 +16,7 @@ pipeline {
          when { tag "*-alpha" }
             steps {
                 echo 'Deploying only because this commit is tagged in ALPHA'
-                sh 'make deploy'
+
             }
 
         }
@@ -24,7 +24,7 @@ pipeline {
          when { tag "*-alpha" }
             steps {
                 echo 'Deploying only because this commit is tagged in Beta'
-                sh 'make deploy'
+
             }
 
         }
@@ -32,7 +32,7 @@ pipeline {
          when { tag "*-release" }
             steps {
                 echo 'Deploying only because this commit is tagged in release'
-                sh 'make deploy'
+
             }
 
         }
