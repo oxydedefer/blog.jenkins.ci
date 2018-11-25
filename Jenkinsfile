@@ -28,7 +28,7 @@ pipeline {
             }
 
         }
-        stage("Deploy on Beta registry"){
+        stage("Deploy on production regitry"){
          when { tag "*-release" }
             steps {
                 echo 'Deploying only because this commit is tagged in release'
